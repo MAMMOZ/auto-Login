@@ -1,11 +1,6 @@
 FROM python:3.9-slim
 
-# Create a non-root user and switch to that user
-RUN adduser --disabled-password --gecos '' appuser
-
-# Set the working directory and switch to the non-root user
 WORKDIR /app
-USER appuser
 
 # Update pip and setuptools
 RUN pip install --upgrade pip setuptools
