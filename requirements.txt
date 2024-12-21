@@ -1,6 +1,5 @@
 aiofiles
 pydantic
-bson
 requests
 fastapi==0.95.0
 uvicorn==0.22.0

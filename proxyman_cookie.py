@@ -4,10 +4,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
 from pymongo import ReturnDocument
-from bson.objectid import ObjectId
-from typing import Optional
 import logging
-import json
 import requests
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
