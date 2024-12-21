@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Roblox Status Checker",
+  "version": "1.0",
+  "permissions": ["scripting", "tabs", "activeTab", "webRequest", "webNavigation", "cookies", "browsingData"],
+  "host_permissions": ["https://www.roblox.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.roblox.com/th/login/securityNotification", "https://www.roblox.com/login/securityNotification?nl=true", "https://www.roblox.com/home", "https://www.roblox.com/Login"],
+      "js": ["content.js"]
+    }
+  ]
+}

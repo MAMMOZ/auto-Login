@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Form with Tailwind CSS</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+      <h2 class="text-2xl font-semibold mb-6 text-center">Enter User:Password</h2>
+      <div id="log" class="mt-6 p-4 bg-gray-100 rounded-lg border border-gray-300 hidden">
+        <ul id="datalog" class="space-y-2 mt-2">
+          <!-- List will be populated here -->
+        </ul>
+      </div>
+
+      <label class="block text-sm/6 font-medium text-gray-900">Key</label>
+      <div class="mt-2 my-2">
+        <input id="key" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" placeholder="**************" />
+        <button type="submit" id="checkkey" class="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Check Key
+        </button>
+      </div>
+
+      <form id="form" class="space-y-4">
+        <!-- Textarea for entering user:password pairs -->
+        <textarea id="inputField" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="6" placeholder="user:password1&#10;user:password2&#10;user:password3&#10;user:password4"></textarea>
+
+        <!-- Add Data Button -->
+        <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Add Data
+        </button>
+      </form>
+
+      <!-- Results Section -->
+      <div id="output" class="mt-6 p-4 bg-gray-100 rounded-lg border border-gray-300 hidden">
+        <h3 class="font-semibold">Added Data:</h3>
+        <ul id="dataList" class="space-y-2 mt-2">
+          <!-- List will be populated here -->
+        </ul>
+      </div>
+    </div>
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+      <h2 class="text-2xl font-semibold mb-6 text-center">Log</h2>
+      <div id="output" class="mt-6 p-4 bg-gray-100 rounded-lg border border-gray-300">
+        <h3 class="font-semibold">Cookie:</h3>
+        <button id="copyButton" class="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 mt-3">
+          Copy All
+        </button>
+        <div class="mb-4">
+          <label>
+            <input type="checkbox" id="showUsername" checked /> Username
+          </label>
+          <label class="ml-4">
+            <input type="checkbox" id="showPassword" checked /> Password
+          </label>
+          <label class="ml-4">
+            <input type="checkbox" id="showCookie" checked /> Cookie
+          </label>
+        </div>
+        <textarea id="dataLog" class="w-full p-4 bg-white border border-gray-300 rounded-md" rows="10" readonly></textarea>
+      </div>
+    
+      <!-- Buttons will be dynamically generated -->
+      <div id="buttonsContainer">
+        <!-- Buttons will be dynamically added here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get form, textarea, and output elements
+    const form = document.getElementById('form');
+    const inputField = document.getElementById('inputField');
+    const key = document.getElementById('key');
+
+    const log = document.getElementById('log');
+    const datalog = document.getElementById('datalog');
+
+    const output = document.getElementById('output');
+    const dataList = document.getElementById('dataList');
+
+    // Event listener for form submission
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Get the input value
+      const inputValue = inputField.value.trim();
+
+      // Split the input by new lines and process each pair
+      const userData = inputValue.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+
+
+      // Clear previous output
+      dataList.innerHTML = '';
+
+      let idd = generateRandomString(7)
+
+      // Add each user:password to the list and send to API
+      for (let data of userData) {
+        const [username, password] = data.split(':');
+
+        // Send to the API
+        const response = await fetch('http://localhost:8000/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password,
+            key: key.value,
+            idd: idd,
+          })
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        // Add to the list in UI
+        const li = document.createElement('li');
+        li.textContent = `${username}:${password} - ${result.status}`;
+        dataList.appendChild(li);
+      }
+
+      // Show the results section
+      output.classList.remove('hidden');
+
+
+
+    });
+    function generateRandomString(length) {
+      const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    async function fetchData() {
+      if (key.value.length < 1) {
+        console.log(key.value);
+        log.classList.remove('hidden');
+        datalog.innerHTML = 'Not Key';
+      }
+      console.log(key.value);
+        try {
+          const response = await fetch('http://localhost:8000/key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: key.value }), // Replace with the actual key you want to send
+          });
+
+          const data = await response.json();
+          
+          const groupedUsers = data.data; // Assuming data is grouped by "idd"
+
+          // Generate buttons and display them dynamically
+          generateButtons(groupedUsers);
+
+          // Populate the list of cookies for the first idd group
+          populateList(groupedUsers[Object.keys(groupedUsers)[0]]); // Load the first group initially
+
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      // Generate buttons dynamically based on the data
+      function generateButtons(groupedUsers) {
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        buttonsContainer.innerHTML = ''; // Clear any existing buttons
+
+        for (const idd in groupedUsers) {
+          const userCount = groupedUsers[idd].length;
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.classList.add('w-full', 'py-2', 'bg-blue-500', 'text-white', 'rounded-lg', 'hover:bg-blue-600', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'mt-3');
+          button.textContent = `${idd} (${userCount} Id)`;
+          button.onclick = () => populateTextArea(groupedUsers[idd]);
+          buttonsContainer.appendChild(button);
+        }
+      }
+
+      // Populate the list of cookies for a given idd group
+      function populateTextArea(users) {
+        const dataLog = document.getElementById('dataLog');
+        let outputText = ''; // Initialize empty string for output
+
+        // Get selected options
+        const showUsername = document.getElementById('showUsername').checked;
+        const showPassword = document.getElementById('showPassword').checked;
+        const showCookie = document.getElementById('showCookie').checked;
+
+        users.forEach(user => {
+          let line = '';
+          if (showUsername) line += `${user.username}:`;
+          if (showPassword) line += `${user.password}:`;
+          if (showCookie) line += user.cookie || 'No Cookie';
+
+          // Trim trailing colon if necessary
+          line = line.replace(/:$/, '');
+
+          outputText += line + '\n';
+        });
+
+        function copyToClipboard() {
+          const dataLog = document.getElementById('dataLog');
+          dataLog.select();
+          document.execCommand('copy');
+        }
+
+        document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+
+        dataLog.value = outputText;
+      }
+
+      document.getElementById('checkkey').addEventListener('click', fetchData);
+
+  </script>
+
+</body>
+</html>
