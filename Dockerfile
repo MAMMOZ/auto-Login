@@ -1,16 +1,19 @@
-# Step 1: Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Step 2: Set the working directory in the container
 WORKDIR /app
 
-# Step 3: Copy the current directory contents into the container at /app
-COPY . /app
+# Update pip and setuptools
+RUN pip install --upgrade pip setuptools
 
-# Step 4: Install dependencies
+# Copy requirements.txt first to leverage Docker cache
+COPY requirements.txt /app/
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Step 5: Expose the port FastAPI will run on
+# Copy the rest of the application code
+COPY . /app
+
 EXPOSE 8000
 
 # Step 6: Define the command to run your app using Uvicorn

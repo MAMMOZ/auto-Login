@@ -73,6 +73,7 @@
   </div>
 
   <script>
+    url = "http://localhost:8000"
     // Get form, textarea, and output elements
     const form = document.getElementById('form');
     const inputField = document.getElementById('inputField');
@@ -105,7 +106,7 @@
         const [username, password] = data.split(':');
 
         // Send to the API
-        const response = await fetch('http://localhost:8000/add', {
+        const response = await fetch(`${url}/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -150,7 +151,7 @@
       }
       console.log(key.value);
         try {
-          const response = await fetch('http://localhost:8000/key', {
+          const response = await fetch(`${url}/key`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key: key.value }), // Replace with the actual key you want to send
