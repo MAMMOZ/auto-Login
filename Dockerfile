@@ -17,4 +17,4 @@ COPY . /app
 EXPOSE 5555
 
 # Step 6: Define the command to run your app using Uvicorn
-CMD ["uvicorn", "proxyman_cookie:app", "--host", "0.0.0.0", "--port", "5555"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "5555"]
